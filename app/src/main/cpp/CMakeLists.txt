@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("NDK App Template" VERSION 1.0.0 LANGUAGES C CXX)
+project("ndk-app-template" VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CLANG_TIDY_PATH
   "${ANDROID_TOOLCHAIN_ROOT}/bin/clang-tidy${ANDROID_TOOLCHAIN_SUFFIX}")

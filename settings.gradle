@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "NDK App Template"
+rootProject.name = "ndk-app-template"
 include ':app'
