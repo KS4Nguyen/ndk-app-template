@@ -4,6 +4,7 @@
 build/
 gradle/wrapper/gradle-8.4-bin.zip
 gradle/wrapper/gradle-9.0-milestone-1-bin.zip
+gradle/wrapper/gradle-8.5-bin.zip
 
 # Local configuration file (sdk path, etc)
 local.properties
