@@ -1,0 +1,75 @@
+# For github actuons with
+#  - CMake 3.22.1
+#  - NDK  23.1.7779620
+
+name: build-and-test
+
+on:
+  push:
+    branches: [main, develop, ci-develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: "Emulator"
+    runs-on: ubuntu-latest
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+      # Used paths will be:
+      # JAVA_HOME=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+      # JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+      # ANDROID_AVD_HOME: /home/runner/.android/avd
+
+    strategy:
+      matrix:
+        api-level: [30] # 29
+        abi:
+        #- arm64-v8a
+        - x86_64
+        #- armeabi-v7a # not supported
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: '17'
+
+    - name: AVD cache
+      uses: actions/cache@v4
+      id: avd-cache
+      with:
+        # Use AVD cache
+        path: ~/.android/avd
+        key: emulator-avd-${{ matrix.api-level }}-${{ runner.os }}
+        restore-keys: emulator-avd-${{ matrix.api-level }}-
+
+    - name: Start emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        avd-name: emulator-${{ matrix.api-level }}
+        api-level: ${{ matrix.api-level }}
+        arch: ${{ matrix.abi }}
+        ndk: 23.1.7779620 # 21.4.7075529
+        cmake: "3.22.1"
+        target: google_apis
+        force-avd-creation:     false
+        disable-snapshots:      false
+        cores:                  4
+        disable-linux-hw-accel: true
+        disable-animations:     true
+
+        emulator-boot-timeout:  60000
+        emulator-options:       "-no-window -no-audio -gpu off -no-boot-anim \
+                                -cores 4  \
+                                -snapshot default
+                                -snapstorage ~/.android/avd/emulator-${{ matrix.api-level }}.avd/snapshots"
+        script: |
+          ./.github/workflows/emulator_script.sh
+          ./gradlew assembleDebug testDebugUnitTest -Dorg.gradle.java.home="$JAVA_HOME"
+          ./gradlew assembleDebug -Dorg.gradle.java.home="$JAVA_HOME" --stacktrace
+
